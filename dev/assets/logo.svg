@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <!-- Filters for Depth/Shadow -->
+    <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
+      <feOffset dx="2" dy="2" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="offsetblur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Gradients for Julia Colors -->
+    <!-- Blue -->
+    <radialGradient id="grad-blue" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" style="stop-color:#6b8de8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4063D8;stop-opacity:1" />
+    </radialGradient>
+
+    <!-- Green -->
+    <radialGradient id="grad-green" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" style="stop-color:#5cb84b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#389826;stop-opacity:1" />
+    </radialGradient>
+
+    <!-- Red -->
+    <radialGradient id="grad-red" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" style="stop-color:#e65c53;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#CB3C33;stop-opacity:1" />
+    </radialGradient>
+
+    <!-- Purple -->
+    <radialGradient id="grad-purple" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" style="stop-color:#b57fe3;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#9558B2;stop-opacity:1" />
+    </radialGradient>
+
+    <!-- Dark background gradient -->
+    <radialGradient id="grad-bg" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" style="stop-color:#3a3a4a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a1a2e;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+
+  <!-- Background Container (White rounded rect) -->
+  <rect x="24" y="24" width="464" height="464" rx="80" fill="#ffffff" stroke="#e0e0e0" stroke-width="2"/>
+
+  <!-- Dark circle background for graph -->
+  <circle cx="256" cy="210" r="160" fill="url(#grad-bg)" filter="url(#dropShadow)"/>
+
+  <!-- Graph Content Group -->
+  <g>
+    <!-- Connecting Edges (light gray/white) -->
+    <!-- Node 1 (top) to Node 2 (right) -->
+    <line x1="256" y1="100" x2="370" y2="200" stroke="#ffffff" stroke-width="4" stroke-opacity="0.6" stroke-linecap="round"/>
+
+    <!-- Node 1 (top) to Node 3 (left) -->
+    <line x1="256" y1="100" x2="142" y2="200" stroke="#ffffff" stroke-width="4" stroke-opacity="0.6" stroke-linecap="round"/>
+
+    <!-- Node 2 (right) to Node 4 (bottom-right) -->
+    <line x1="370" y1="200" x2="320" y2="310" stroke="#ffffff" stroke-width="4" stroke-opacity="0.6" stroke-linecap="round"/>
+
+    <!-- Node 3 (left) to Node 4 (bottom-right) -->
+    <line x1="142" y1="200" x2="320" y2="310" stroke="#ffffff" stroke-width="4" stroke-opacity="0.6" stroke-linecap="round"/>
+
+    <!-- Node 3 (left) to Node 5 (bottom-left) -->
+    <line x1="142" y1="200" x2="192" y2="310" stroke="#ffffff" stroke-width="4" stroke-opacity="0.6" stroke-linecap="round"/>
+
+    <!-- Node 2 (right) to Node 3 (left) -->
+    <line x1="370" y1="200" x2="142" y2="200" stroke="#ffffff" stroke-width="4" stroke-opacity="0.6" stroke-linecap="round"/>
+
+    <!-- Node 4 (bottom-right) to Node 5 (bottom-left) -->
+    <line x1="320" y1="310" x2="192" y2="310" stroke="#ffffff" stroke-width="4" stroke-opacity="0.6" stroke-linecap="round"/>
+
+    <!-- Node 1 (top): Blue -->
+    <circle cx="256" cy="100" r="28" fill="url(#grad-blue)" stroke="#ffffff" stroke-width="3" filter="url(#dropShadow)"/>
+
+    <!-- Node 2 (right): Green -->
+    <circle cx="370" cy="200" r="28" fill="url(#grad-green)" stroke="#ffffff" stroke-width="3" filter="url(#dropShadow)"/>
+
+    <!-- Node 3 (left): Red -->
+    <circle cx="142" cy="200" r="28" fill="url(#grad-red)" stroke="#ffffff" stroke-width="3" filter="url(#dropShadow)"/>
+
+    <!-- Node 4 (bottom-right): Purple -->
+    <circle cx="320" cy="310" r="28" fill="url(#grad-purple)" stroke="#ffffff" stroke-width="3" filter="url(#dropShadow)"/>
+
+    <!-- Node 5 (bottom-left): Blue -->
+    <circle cx="192" cy="310" r="28" fill="url(#grad-blue)" stroke="#ffffff" stroke-width="3" filter="url(#dropShadow)"/>
+  </g>
+
+  <!-- Text "Networks.jl" (the module is Networks, plural, since v0.2) -->
+  <g transform="translate(256, 450)" text-anchor="middle" font-family="sans-serif" font-weight="900" letter-spacing="1">
+    <!-- N: Blue -->
+    <text x="-160" y="0" font-size="56" fill="#4063D8" filter="url(#dropShadow)">N</text>
+    <!-- e: Green -->
+    <text x="-122" y="0" font-size="56" fill="#389826" filter="url(#dropShadow)">e</text>
+    <!-- t: Red -->
+    <text x="-90" y="0" font-size="56" fill="#CB3C33" filter="url(#dropShadow)">t</text>
+    <!-- w: Purple -->
+    <text x="-63" y="0" font-size="56" fill="#9558B2" filter="url(#dropShadow)">w</text>
+    <!-- o: Blue -->
+    <text x="-20" y="0" font-size="56" fill="#4063D8" filter="url(#dropShadow)">o</text>
+    <!-- r: Green -->
+    <text x="18" y="0" font-size="56" fill="#389826" filter="url(#dropShadow)">r</text>
+    <!-- k: Red -->
+    <text x="45" y="0" font-size="56" fill="#CB3C33" filter="url(#dropShadow)">k</text>
+    <!-- s: Purple -->
+    <text x="76" y="0" font-size="56" fill="#9558B2" filter="url(#dropShadow)">s</text>
+    <!-- .: Dark Grey -->
+    <text x="105" y="0" font-size="56" fill="#555555">.</text>
+    <!-- j: Green -->
+    <text x="121" y="0" font-size="56" fill="#389826" filter="url(#dropShadow)">j</text>
+    <!-- l: Blue -->
+    <text x="143" y="0" font-size="56" fill="#4063D8" filter="url(#dropShadow)">l</text>
+  </g>
+
+</svg>
