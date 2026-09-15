@@ -22,7 +22,8 @@ using LinearAlgebra: eigvals
 
 """
     newton_fit(loglik_grad_hess, θ0::AbstractVector;
-               maxiter=100, tol=1e-8, max_halvings=10) -> NamedTuple
+               maxiter=100, tol=1e-8, max_halvings=10,
+               information_rtol=length(θ0)*eps(Float64)) -> NamedTuple
 
 Maximize a smooth objective (typically a log-likelihood) by Newton–Raphson
 with step halving.
@@ -54,6 +55,10 @@ any logistic (pseudo-)likelihood.
 - `maxiter::Int=100`: Maximum Newton iterations
 - `tol::Float64=1e-8`: Convergence tolerance on the objective change
 - `max_halvings::Int=10`: Maximum step halvings per iteration
+- `information_rtol::Float64=length(θ0)*eps(Float64)`: Relative eigenvalue
+  threshold for the final observed-information rank check, in `[0, 1)`.
+  Objectives whose Hessians accumulate longer floating-point sums can supply
+  a larger threshold reflecting their evaluation precision.
 
 # Returns
 NamedTuple `(θ, se, vcov, loglik, converged, iterations)`:
@@ -64,7 +69,8 @@ NamedTuple `(θ, se, vcov, loglik, converged, iterations)`:
   direction, a non-identified coefficient), the covariance is *undefined*:
   `se` and `vcov` are filled with `NaN`, `converged` is false, and a warning is emitted.
   Numerical identification requires the smallest eigenvalue of the information
-  scaled to unit diagonal to exceed `p * eps(Float64)` times its largest.
+  scaled to unit diagonal to exceed `information_rtol` times its largest
+  (by default, `p * eps(Float64)`).
   This criterion is invariant to changes of individual coefficient units;
   it detects singular information that roundoff can let Cholesky accept. The old
   `sqrt.(abs.(diag(pinv(-hess))))` would have returned finite, meaningless
@@ -112,7 +118,10 @@ fit.converged             # true
 ```
 """
 function newton_fit(loglik_grad_hess, θ0::AbstractVector{<:Real};
-                    maxiter::Int=100, tol::Float64=1e-8, max_halvings::Int=10)
+                    maxiter::Int=100, tol::Float64=1e-8, max_halvings::Int=10,
+                    information_rtol::Float64=length(θ0)*eps(Float64))
+    0 <= information_rtol < 1 ||
+        throw(ArgumentError("newton_fit: information_rtol must be in [0, 1)"))
     θ = Vector{Float64}(θ0)
     p = length(θ)
     ll, grad, hess = loglik_grad_hess(θ)
@@ -210,7 +219,7 @@ function newton_fit(loglik_grad_hess, θ0::AbstractVector{<:Real};
         end
     end
 
-    vcov, se = _observed_information_cov(hess, p)
+    vcov, se = _observed_information_cov(hess, p; rtol=information_rtol)
     converged &= all(isfinite, vcov)
     return (θ=θ, se=se, vcov=vcov, loglik=ll, converged=converged,
             iterations=iterations)
@@ -220,7 +229,7 @@ end
 # Cholesky factorization after a scale-invariant numerical rank check; NaN
 # (with a warning) otherwise. Cholesky alone can accept a singular matrix
 # when roundoff leaves an arbitrarily small positive final pivot.
-function _observed_information_cov(hess, p::Int)
+function _observed_information_cov(hess, p::Int; rtol::Float64=p*eps(Float64))
     H = Matrix{Float64}(-hess)
     size(H) == (p, p) ||
         throw(ArgumentError("newton_fit: the Hessian is $(size(H)) for $p parameters"))
@@ -229,7 +238,7 @@ function _observed_information_cov(hess, p::Int)
         scales = sqrt.(diag(H))
         C = (H ./ scales) ./ scales'
         spectrum = all(isfinite, C) ? eigvals(Symmetric(C)) : [NaN]
-        if first(spectrum) > p * eps(Float64) * last(spectrum)
+        if first(spectrum) > rtol * last(spectrum)
             F = cholesky(Symmetric(C); check=false)
             if issuccess(F)
                 vcov = (Matrix{Float64}(inv(F)) ./ scales) ./ scales'

@@ -235,6 +235,10 @@ by every model package in the ecosystem.
 
 ### Added
 
+- `newton_fit(...; information_rtol=...)` lets an objective declare the
+  relative precision of its observed-information matrix for the final rank
+  check. The default remains `length(θ0) * eps(Float64)`; the Newton iteration
+  and scale-invariant covariance calculation are unchanged.
 - **`src` and `dst` are re-exported from Graphs.jl** beside `edges` (panel
   2026-09, item 3 follow-up from ERGMUserterms): `edges(net)` yields Graphs.jl
   edges whose endpoints are read with `src(e)`/`dst(e)`, and re-exporting the

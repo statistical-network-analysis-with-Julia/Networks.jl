@@ -3146,6 +3146,29 @@ Base.:\(::ExplodingHessian, ::AbstractVector) = error("boom from the caller's co
             @test !result.converged
         end
 
+        @testset "information rank tolerance reflects Hessian evaluation precision" begin
+            # An assembled Hessian can have more rounding noise than the
+            # p-dimensional eigensolve itself. Let its owner declare that
+            # precision without changing the optimizer's default policy.
+            H = [1.0 1.0-1e-14; 1.0-1e-14 1.0]
+            quadratic(θ) = (-dot(θ, H * θ) / 2, -H * θ, -H)
+            default = newton_fit(quadratic, zeros(2))
+            @test default.converged && all(isfinite, default.vcov)
+            guarded = @test_logs (:warn, r"numerically identifiable") newton_fit(
+                quadratic, zeros(2); information_rtol=1e-12)
+            @test !guarded.converged
+            @test all(isnan, guarded.vcov) && all(isnan, guarded.se)
+            # Equilibration still protects well-identified parameters with
+            # very different units; absolute eigenvalues must not decide.
+            scaled(θ) = (-θ[1]^2 / 2 - 1e-20 * θ[2]^2 / 2,
+                         [-θ[1], -1e-20 * θ[2]], [-1.0 0.0; 0.0 -1e-20])
+            healthy = newton_fit(scaled, zeros(2); information_rtol=1e-12)
+            @test healthy.converged && healthy.se ≈ [1.0, 1e10]
+            for bad in (-1.0, 1.0, Inf, NaN)
+                @test_throws ArgumentError newton_fit(quadratic, zeros(2); information_rtol=bad)
+            end
+        end
+
         @testset "scale-free verdict: Newton decrement and rounding noise" begin
             # The TERGM/ERGMRank/REM round-2 finding: on a large design the
             # gradient's own units put `sqrt(tol)` below the objective's
