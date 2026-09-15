@@ -75,7 +75,8 @@ the conventional `script = "test/fixtures/r/<name>.R"` (relative to the
 package root) resolves from any working directory, and an ad-hoc fixture can
 keep its script beside it as `r/<name>.R`. Pass `root=` to start the walk from
 a different directory (a fixture copied out of its package, say). An absolute
-`script` is used as given. The resolved absolute path is stored in the
+`script` is used as given. Relative paths are normalized to the platform's
+path separators. The resolved absolute path is stored in the
 returned fixture's `script_path` field and printed by `show` and
 [`golden_report`](@ref). A fixture whose script cannot be found throws an
 `ArgumentError` naming the fixture, the script string and every directory
@@ -151,7 +152,7 @@ function _resolve_fixture_script(start::AbstractString, script::AbstractString)
     dir = String(abspath(start))
     while true
         push!(searched, dir)
-        candidate = joinpath(dir, script)
+        candidate = normpath(joinpath(dir, script))
         isfile(candidate) && return String(candidate), searched
         parent = dirname(dir)
         parent == dir && return nothing, searched

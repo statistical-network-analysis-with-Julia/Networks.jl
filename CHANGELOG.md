@@ -612,6 +612,9 @@ by every model package in the ecosystem.
 
 ### Fixed
 
+- Golden-fixture script paths use native path separators on Windows, including
+  package-relative provenance paths. Absolute-path test fixtures are serialized
+  with TOML escaping so Windows paths remain valid TOML.
 - `rem_vertex!` now remaps the swapped-in last vertex's vertex attributes,
   incident-edge attributes, and missing-dyad marks onto its new ID under
   Graphs.jl's swap-and-pop, so attribute data stays attached to the right

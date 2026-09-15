@@ -1,5 +1,6 @@
 using Networks
 using Test
+using TOML
 using Graphs
 using DataFrames
 using Random
@@ -2387,15 +2388,13 @@ Base.:\(::ExplodingHessian, ::AbstractVector) = error("boom from the caller's co
 
                 # An absolute script path is used as given
                 absfix = joinpath(dir, "abs.toml")
-                write(absfix, """
-                    [provenance]
-                    r_version = "4.6.1"
-                    seed = 1
-                    script = "$(joinpath(dir, "test", "fixtures", "r", "deep.R"))"
-
-                    [values]
-                    x = 1.0
-                    """)
+                # TOML must escape the backslashes in a native Windows path.
+                absolute_fixture = TOML.parsefile(fixture)
+                absolute_fixture["provenance"]["script"] =
+                    joinpath(dir, "test", "fixtures", "r", "deep.R")
+                open(absfix, "w") do io
+                    TOML.print(io, absolute_fixture)
+                end
                 @test load_golden(absfix).script_path ==
                       joinpath(dir, "test", "fixtures", "r", "deep.R")
             end
