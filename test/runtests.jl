@@ -2409,7 +2409,7 @@ Base.:\(::ExplodingHessian, ::AbstractVector) = error("boom from the caller's co
             end
             @test g isa GoldenFixture
             @test isfile(joinpath(pkgdir(Networks), g.provenance["script"]))
-            @test g.script_path == joinpath(pkgdir(Networks), g.provenance["script"])
+            @test g.script_path == normpath(joinpath(pkgdir(Networks), g.provenance["script"]))
         end
 
         @testset "checks values against the declared tolerance" begin
