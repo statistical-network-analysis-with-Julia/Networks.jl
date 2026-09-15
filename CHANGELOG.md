@@ -527,6 +527,8 @@ by every model package in the ecosystem.
 
 ### Changed
 
+- Documentation uses the default Documenter themes, with a new package-specific
+  SVG icon and browser favicon in the official Julia logo colors.
 - **`newton_fit` no longer swallows errors as non-convergence** (panel 2026-09
   round 2). The Newton step's `try` was a bare `catch` that turned ANY
   exception into `converged=false, iterations=1` with NaN standard errors — a
