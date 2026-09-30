@@ -22,7 +22,7 @@ using LinearAlgebra: eigvals
 
 """
     newton_fit(loglik_grad_hess, θ0::AbstractVector;
-               maxiter=100, tol=1e-8, max_halvings=10,
+               maxiter=100, tol=1e-8, max_halvings=30,
                information_rtol=length(θ0)*eps(Float64)) -> NamedTuple
 
 Maximize a smooth objective (typically a log-likelihood) by Newton–Raphson
@@ -54,7 +54,11 @@ any logistic (pseudo-)likelihood.
 # Keywords
 - `maxiter::Int=100`: Maximum Newton iterations
 - `tol::Float64=1e-8`: Convergence tolerance on the objective change
-- `max_halvings::Int=10`: Maximum step halvings per iteration
+- `max_halvings::Int=30`: Maximum step halvings per iteration, i.e. the smallest
+  step tried is `2^-(max_halvings-1)` of the Newton step. Far from the maximum
+  a likelihood with a rare indicator covariate proposes steps hundreds of times
+  too long (a participation shift in a relational event model needed `2^-10`);
+  the limit was 10 before 0.2.0, which stopped such fits one halving short.
 - `information_rtol::Float64=length(θ0)*eps(Float64)`: Relative eigenvalue
   threshold for the final observed-information rank check, in `[0, 1)`.
   Objectives whose Hessians accumulate longer floating-point sums can supply
@@ -118,7 +122,7 @@ fit.converged             # true
 ```
 """
 function newton_fit(loglik_grad_hess, θ0::AbstractVector{<:Real};
-                    maxiter::Int=100, tol::Float64=1e-8, max_halvings::Int=10,
+                    maxiter::Int=100, tol::Float64=1e-8, max_halvings::Int=30,
                     information_rtol::Float64=length(θ0)*eps(Float64))
     0 <= information_rtol < 1 ||
         throw(ArgumentError("newton_fit: information_rtol must be in [0, 1)"))

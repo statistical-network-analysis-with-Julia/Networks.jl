@@ -3062,6 +3062,14 @@ Base.:\(::ExplodingHessian, ::AbstractVector) = error("boom from the caller's co
             # The docstring example
             dfit = newton_fit(pois, [0.0])
             @test dfit.θ[1] ≈ log(k) && dfit.se[1] ≈ 1 / sqrt(k) && dfit.converged
+            # From θ = -10 the Hessian is ~e^-10, so the first Newton step is
+            # ~1.5e5 too long and the first improving step is 2^-14 of it. Ten
+            # halvings stop short of it; the default does not.
+            far = newton_fit(pois, [-10.0])
+            @test far.converged
+            @test far.θ[1] ≈ log(k) atol = 1e-6
+            short = newton_fit(pois, [-10.0]; max_halvings=10)
+            @test !short.converged && short.θ[1] == -10.0
             # maxiter=1 from far away: honestly unconverged
             one = newton_fit(pois, [8.0]; maxiter=1)
             @test one.converged == false
@@ -3086,7 +3094,9 @@ Base.:\(::ExplodingHessian, ::AbstractVector) = error("boom from the caller's co
             @test newton_fit(nanwall, [20.0]).θ[1] ≈ k atol = 1e-6
             # Every halving non-finite: stop at the last finite iterate, loudly
             # unconverged, never a NaN θ
-            wall(θ) = θ[1] > 1.0 ? (-Inf, [NaN], hcat(NaN)) : (θ[1], [1.0], hcat(-1e-3))
+            # (a Newton step of 1e15, so that even the smallest of the 30 halved
+            # steps, 2^-29 of it, lands beyond the wall)
+            wall(θ) = θ[1] > 1.0 ? (-Inf, [NaN], hcat(NaN)) : (θ[1], [1.0], hcat(-1e-15))
             wfit = newton_fit(wall, [0.5])
             @test !wfit.converged
             @test wfit.θ == [0.5] && wfit.loglik == 0.5

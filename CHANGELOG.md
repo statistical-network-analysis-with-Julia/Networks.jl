@@ -527,6 +527,18 @@ by every model package in the ecosystem.
 
 ### Changed
 
+- **`newton_fit` halves a step up to 30 times (was 10).** Started at zero, a
+  likelihood with a rare indicator covariate and a large true coefficient
+  proposes Newton steps hundreds of times too long. On the bundled WTC police
+  calls, `Relevent.fit_obpm` with `[CovInt, RRecSnd, PShift(:AB_BA)]` needed a
+  step of `2^-10` at its second iteration — the eleventh trial — so it stopped
+  after two iterations with `converged == false` and a coefficient of 14 where
+  the maximum is at 4.7; `REM.fit_rem` failed the same way, and neither
+  exposes `max_halvings`. With the new limit both converge in 8 iterations. A
+  fit that converged before is unchanged: the halving loop stops at the first
+  improving step, so only iterations that previously exhausted ten halvings
+  behave differently.
+
 - Documentation uses the default Documenter themes, with a new package-specific
   SVG icon and browser favicon in the official Julia logo colors.
 - **`newton_fit` no longer swallows errors as non-convergence** (panel 2026-09
